@@ -37,7 +37,7 @@ class QiwiConnector {
             const response = yield node_fetch_1.default(outUrl, urlOptions);
             const json = yield response.json();
             if (response.status !== 200)
-                throw new QiwiError(response.status, json ? json.message : '', json);
+                throw new QiwiError(response.status, json ? json.message : '', { json, response, urlOptions });
             return json;
         });
     }

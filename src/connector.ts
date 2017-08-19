@@ -49,7 +49,7 @@ export default class QiwiConnector {
 
     const response = await fetch(outUrl, urlOptions);
     const json = await response.json();
-    if (response.status !== 200) throw new QiwiError(response.status, json ? json.message : '', json);
+    if (response.status !== 200) throw new QiwiError(response.status, json ? json.message : '', { json, response, urlOptions });
 
     return json;
   }
@@ -59,7 +59,7 @@ export class QiwiError extends Error {
   private statusCode: number;
   private jsonRaw: any;
 
-  constructor(statusCode: number, message?: string, jsonRaw?: string) {
+  constructor(statusCode: number, message?: string, jsonRaw?: any) {
     super();
 
     this.stack = (new Error()).stack;

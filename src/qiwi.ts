@@ -47,7 +47,7 @@ export default class Qiwi {
 
     doPayment(provider: number, options: DoPaymentRequest): Promise<any> {
       const payment = Object.assign({}, {
-        id: +new Date(),
+        id: (+new Date()).toString(),
         source: 'account_643',
         paymentMethod: {
           type: 'Account',
@@ -61,8 +61,8 @@ export default class Qiwi {
     sendToWallet(wallet: number, amount: number, comment?: string): Promise<any> {
       return this.doPayment(99, {
         sum: {
-          amount,
-          currency: 643,
+          amount: amount.toString(),
+          currency: '643',
         },
         comment,
         fields: {
@@ -81,8 +81,8 @@ export default class Qiwi {
 
       return this.doPayment(isp, {
         sum: {
-          amount,
-          currency: 643,
+          amount: amount.toString(),
+          currency: '643',
         },
         fields: {
           account: phone.toString(),

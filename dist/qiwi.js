@@ -34,7 +34,7 @@ class Qiwi {
     }
     doPayment(provider, options) {
         const payment = Object.assign({}, {
-            id: +new Date(),
+            id: (+new Date()).toString(),
             source: 'account_643',
             paymentMethod: {
                 type: 'Account',
@@ -46,8 +46,8 @@ class Qiwi {
     sendToWallet(wallet, amount, comment) {
         return this.doPayment(99, {
             sum: {
-                amount,
-                currency: 643,
+                amount: amount.toString(),
+                currency: '643',
             },
             comment,
             fields: {
@@ -65,8 +65,8 @@ class Qiwi {
             }
             return this.doPayment(isp, {
                 sum: {
-                    amount,
-                    currency: 643,
+                    amount: amount.toString(),
+                    currency: '643',
                 },
                 fields: {
                     account: phone.toString(),

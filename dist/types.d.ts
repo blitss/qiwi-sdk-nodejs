@@ -94,15 +94,15 @@ export interface FeeRequest {
     };
 }
 export interface DoPaymentRequest {
-    id?: number;
+    id?: string;
     sum: {
-        amount: number;
-        currency: 643;
+        amount: string;
+        currency: '643';
     };
     source?: 'account_643';
     paymentMethod?: {
         type: 'Account';
-        accountId: 643;
+        accountId: '643';
     };
     comment?: string;
     fields: {
