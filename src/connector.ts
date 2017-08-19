@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import merge from 'lodash/merge';
 import * as queryString from 'query-string';
 
 export interface QiwiOptions {
@@ -22,7 +23,7 @@ export default class QiwiConnector {
 
   constructor(apiKey: string, options?: QiwiOptions) {
     this.apiKey = apiKey;
-    this.options = Object.assign(defaultOptions, { 'Authorization': `Bearer ${apiKey}` }, options)
+    this.options = merge(defaultOptions, { headers: { 'Authorization': `Bearer ${apiKey}` } }, options)
   }
 
   /**
@@ -42,7 +43,7 @@ export default class QiwiConnector {
     // Build options
     const urlOptions: RequestInit = {
       method,
-      headers: Object.assign(this.options, headers),
+      headers: merge(this.options.headers, headers),
     };
     if (method !== 'GET') urlOptions.body = JSON.stringify(data);
 
