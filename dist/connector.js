@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_fetch_1 = require("node-fetch");
-const merge_1 = require("lodash/merge");
+const merge = require("lodash/merge");
 const queryString = require("query-string");
 exports.defaultOptions = {
     baseUrl: 'https://edge.qiwi.com/',
@@ -21,7 +21,7 @@ exports.defaultOptions = {
 class QiwiConnector {
     constructor(apiKey, options) {
         this.apiKey = apiKey;
-        this.options = merge_1.default(exports.defaultOptions, { headers: { 'Authorization': `Bearer ${apiKey}` } }, options);
+        this.options = merge(exports.defaultOptions, { headers: { 'Authorization': `Bearer ${apiKey}` } }, options);
     }
     query(method, endpoint, data, headers) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -30,7 +30,7 @@ class QiwiConnector {
                 outUrl += '?' + queryString.stringify(data);
             const urlOptions = {
                 method,
-                headers: merge_1.default(this.options.headers, headers),
+                headers: merge(this.options.headers, headers),
             };
             if (method !== 'GET')
                 urlOptions.body = JSON.stringify(data);

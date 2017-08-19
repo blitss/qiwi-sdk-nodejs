@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import merge from 'lodash/merge';
+import * as merge from 'lodash/merge';
 import * as queryString from 'query-string';
 
 export interface QiwiOptions {
