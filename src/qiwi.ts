@@ -18,7 +18,7 @@ export default class Qiwi {
    * @param connector - could be QiwiConnector class or api key also
    */
     constructor(connector: QiwiConnector | string) {
-      this.connector = typeof connector === 'string' ? new QiwiConnector(connector) : connector;
+      this.connector = typeof connector === 'string' ? new QiwiConnector(connector, {}) : connector;
     }
 
     getProfile(options?: ProfileOptions): Promise<ProfileResponse> {

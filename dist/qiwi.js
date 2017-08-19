@@ -12,7 +12,7 @@ const connector_1 = require("./connector");
 const node_fetch_1 = require("node-fetch");
 class Qiwi {
     constructor(connector) {
-        this.connector = typeof connector === 'string' ? new connector_1.default(connector) : connector;
+        this.connector = typeof connector === 'string' ? new connector_1.default(connector, {}) : connector;
     }
     getProfile(options) {
         return this.connector.query('GET', 'person-profile/v1/profile/current', options);

@@ -24,7 +24,7 @@ class QiwiConnector {
     }
     query(method, endpoint, data, headers) {
         return __awaiter(this, void 0, void 0, function* () {
-            let outUrl = method + endpoint;
+            let outUrl = this.options.baseUrl + endpoint;
             if (method === 'GET' && data)
                 outUrl += '?' + queryString.stringify(data);
             const urlOptions = {
@@ -36,17 +36,18 @@ class QiwiConnector {
             const response = yield node_fetch_1.default(outUrl, urlOptions);
             const json = yield response.json();
             if (response.status !== 200)
-                throw new QiwiError(response.status, json ? json.message : '');
+                throw new QiwiError(response.status, json ? json.message : '', json);
             return json;
         });
     }
 }
 exports.default = QiwiConnector;
 class QiwiError extends Error {
-    constructor(statusCode, message) {
+    constructor(statusCode, message, jsonRaw) {
         super();
         this.stack = (new Error()).stack;
         this.statusCode = statusCode;
+        this.jsonRaw = jsonRaw;
         this.message = message || `${this.statusCode} error`;
     }
 }

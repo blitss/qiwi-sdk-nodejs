@@ -22,5 +22,6 @@ export default class QiwiConnector {
 }
 export declare class QiwiError extends Error {
     private statusCode;
-    constructor(statusCode: number, message?: string);
+    private jsonRaw;
+    constructor(statusCode: number, message?: string, jsonRaw?: string);
 }

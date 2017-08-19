@@ -36,7 +36,7 @@ export default class QiwiConnector {
   async query(method: string, endpoint: string, data?: Object, headers?: { [key: string]: string }) {
 
     // Build URL
-    let outUrl = method + endpoint;
+    let outUrl = this.options.baseUrl + endpoint;
     if (method === 'GET' && data) outUrl += '?' + queryString.stringify(data);
 
     // Build options
@@ -48,7 +48,7 @@ export default class QiwiConnector {
 
     const response = await fetch(outUrl, urlOptions);
     const json = await response.json();
-    if (response.status !== 200) throw new QiwiError(response.status, json ? json.message : '');
+    if (response.status !== 200) throw new QiwiError(response.status, json ? json.message : '', json);
 
     return json;
   }
@@ -56,12 +56,14 @@ export default class QiwiConnector {
 
 export class QiwiError extends Error {
   private statusCode: number;
+  private jsonRaw: any;
 
-  constructor(statusCode: number, message?: string) {
+  constructor(statusCode: number, message?: string, jsonRaw?: string) {
     super();
 
     this.stack = (new Error()).stack;
     this.statusCode = statusCode;
+    this.jsonRaw = jsonRaw;
     this.message = message || `${this.statusCode} error`;
   }
 }
