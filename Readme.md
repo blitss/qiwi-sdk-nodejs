@@ -33,3 +33,4 @@ qiwi.sendToWallet(7900000000, 200.43, 'Qiwi SDK is working!')
 
 ## ☑ TODO
 - [ ] Add all typings
+- [ ] Update documentation
