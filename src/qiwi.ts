@@ -1,3 +1,4 @@
+import * as moment from 'moment';
 import QiwiConnector from './connector';
 import fetch from 'node-fetch';
 import {
@@ -8,8 +9,16 @@ import {
   StatsRequest,
   StatsResponse,
   FeeRequest,
-  BalanceResponse, DoPaymentRequest
+  BalanceResponse,
+  DoPaymentRequest
 } from './types';
+
+export const QIWI_DATE_FORMAT = 'YYYY-MM-DDThh:mm:ssZ'; // its really shit
+
+export function formatDate(date: string | Date) {
+  if (typeof date === 'string') return date; // it was already specified, no need to convert it
+  return moment(date).format(QIWI_DATE_FORMAT);
+}
 
 export default class Qiwi {
     private connector: QiwiConnector;
@@ -18,6 +27,8 @@ export default class Qiwi {
    * @param connector - could be QiwiConnector class or api key also
    */
     constructor(connector: QiwiConnector | string) {
+      if (!connector) throw new Error('You haven\'t specified api_token, go here and get one: https://qiwi.com/api');
+
       this.connector = typeof connector === 'string' ? new QiwiConnector(connector, {}) : connector;
     }
 
@@ -26,11 +37,18 @@ export default class Qiwi {
     }
 
     getPayments(wallet: number, options?: PaymentsRequest): Promise<PaymentsResponse> {
-      return this.connector.query('GET', `payment-history/v1/persons/${wallet}/payments`, options)
+      const defaultOptions = { rows: 25 };
+
+      return this.connector.query('GET', `payment-history/v1/persons/${wallet}/payments`, Object.assign(defaultOptions, options))
     }
 
     getPaymentsStats(wallet: number, options: StatsRequest): Promise<StatsResponse> {
-      return this.connector.query('GET', `payment-history/v1/persons/${wallet}/payments/total`, options)
+      const mergedOptions = Object.assign(options,{
+        startDate: options.startDate ? formatDate(options.startDate) : moment().subtract('7', 'days').format(QIWI_DATE_FORMAT),
+        endDate: options.endDate ? formatDate(options.endDate) : moment().format(QIWI_DATE_FORMAT),
+      });
+
+      return this.connector.query('GET', `payment-history/v1/persons/${wallet}/payments/total`, mergedOptions)
     }
 
     getBalance(): Promise<BalanceResponse> {
@@ -46,7 +64,7 @@ export default class Qiwi {
     }
 
     doPayment(provider: number, options: DoPaymentRequest): Promise<any> {
-      const payment = Object.assign({}, {
+      const payment = Object.assign({
         id: (+new Date()).toString(),
         source: 'account_643',
         paymentMethod: {
@@ -92,6 +110,7 @@ export default class Qiwi {
 
     static async detectPhone(phone): Promise<number | null> {
       const response = await fetch('https://qiwi.com/mobile/detect.action', {
+        method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -100,7 +119,7 @@ export default class Qiwi {
       });
       const json = await response.json();
 
-      if (json.code.value === 0) return parseInt(json.message);
+      if (json.code.value === "0") return parseInt(json.message);
       else return null;
     }
 }

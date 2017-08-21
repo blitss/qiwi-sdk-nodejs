@@ -35,10 +35,18 @@ class QiwiConnector {
             if (method !== 'GET')
                 urlOptions.body = JSON.stringify(data);
             const response = yield node_fetch_1.default(outUrl, urlOptions);
-            const json = yield response.json();
-            if (response.status !== 200)
-                throw new QiwiError(response.status, json ? json.message : '', { json, response, urlOptions });
-            return json;
+            try {
+                const json = yield response.json();
+                if (response.status !== 200) {
+                    throw new QiwiError(response.status, json ? json.message : response.statusText, { json, response, urlOptions });
+                }
+                return json;
+            }
+            catch (e) {
+                if (e instanceof QiwiError)
+                    throw e;
+                throw new QiwiError(response.status, response.statusText, { response, urlOptions });
+            }
         });
     }
 }
@@ -48,8 +56,19 @@ class QiwiError extends Error {
         super();
         this.stack = (new Error()).stack;
         this.statusCode = statusCode;
-        this.jsonRaw = jsonRaw;
-        this.message = message || `${this.statusCode} error`;
+        this.request = jsonRaw;
+        this._message = message;
+    }
+    get message() {
+        return this._message || this.request.json.userMessage || this.request.response.statusText;
+    }
+    get errorCode() {
+        if (this.statusCode === 401)
+            return 'unauthorized';
+        if (this.statusCode === 423)
+            return 'unavailable';
+        if (this.request.json.errorCode)
+            return this.request.json.errorCode;
     }
 }
 exports.QiwiError = QiwiError;

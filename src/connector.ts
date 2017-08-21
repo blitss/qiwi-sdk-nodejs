@@ -1,6 +1,7 @@
-import fetch from 'node-fetch';
+import fetch, { Response } from 'node-fetch';
 import * as merge from 'lodash/merge';
 import * as queryString from 'query-string';
+import Qiwi from './qiwi';
 
 export interface QiwiOptions {
   baseUrl?: string;
@@ -48,23 +49,53 @@ export default class QiwiConnector {
     if (method !== 'GET') urlOptions.body = JSON.stringify(data);
 
     const response = await fetch(outUrl, urlOptions);
-    const json = await response.json();
-    if (response.status !== 200) throw new QiwiError(response.status, json ? json.message : '', { json, response, urlOptions });
+    try {
+      const json = await response.json();
+      if (response.status !== 200) {
+        throw new QiwiError(
+         response.status,
+         json ? json.message : response.statusText,
+         { json, response, urlOptions }
+        );
+      }
 
-    return json;
+      return json;
+    } catch (e) {
+      if (e instanceof QiwiError) throw e; // If it was already throw
+
+      throw new QiwiError(response.status, response.statusText, { response, urlOptions })
+    }
   }
 }
 
-export class QiwiError extends Error {
-  private statusCode: number;
-  private jsonRaw: any;
+export interface Request {
+  json?: any // This is a response
+  response: Response
+  urlOptions: RequestInit
+}
 
-  constructor(statusCode: number, message?: string, jsonRaw?: any) {
+export class QiwiError extends Error {
+  public statusCode: number;
+  public request: Request;
+  private _message?: string;
+
+  constructor(statusCode: number, message?: string, jsonRaw?: Request) {
     super();
 
     this.stack = (new Error()).stack;
     this.statusCode = statusCode;
-    this.jsonRaw = jsonRaw;
-    this.message = message || `${this.statusCode} error`;
+    this.request = jsonRaw;
+    this._message = message;
+  }
+
+  get message() {
+    return this._message || this.request.json.userMessage || this.request.response.statusText;
+  }
+
+  get errorCode() {
+    if (this.statusCode === 401) return 'unauthorized';
+    if (this.statusCode === 423) return 'unavailable';
+
+    if (this.request.json.errorCode) return this.request.json.errorCode;
   }
 }

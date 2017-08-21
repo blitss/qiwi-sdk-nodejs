@@ -53,7 +53,7 @@ export interface PaymentsResponse {
     nextTxnDate: string;
 }
 export interface PaymentsRequest {
-    rows?: number;
+    rows: number;
     operation?: PaymentInput;
     sources?: Sources[];
     startDate?: Date;

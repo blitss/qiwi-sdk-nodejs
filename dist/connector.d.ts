@@ -1,3 +1,4 @@
+import { Response } from 'node-fetch';
 export interface QiwiOptions {
     baseUrl?: string;
     headers?: {
@@ -20,8 +21,16 @@ export default class QiwiConnector {
         [key: string]: string;
     }): Promise<any>;
 }
+export interface Request {
+    json?: any;
+    response: Response;
+    urlOptions: RequestInit;
+}
 export declare class QiwiError extends Error {
-    private statusCode;
-    private jsonRaw;
-    constructor(statusCode: number, message?: string, jsonRaw?: any);
+    statusCode: number;
+    request: Request;
+    private _message?;
+    constructor(statusCode: number, message?: string, jsonRaw?: Request);
+    readonly message: any;
+    readonly errorCode: any;
 }

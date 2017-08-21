@@ -1,11 +1,11 @@
 {
   "name": "qiwi-wallet-sdk",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "SDK for working with Qiwi API",
   "main": "dist/index.js",
   "typings": "dist/index",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -16,16 +16,20 @@
     "nodejs",
     "qiwi"
   ],
-  "author": "Andrey Vasilev <vasilev2andrey@gmail.com>",
+  "author": "Andrey Vasilev <v666andrey@yandex.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Blitss/qiwi-sdk-nodejs/issues"
   },
   "homepage": "https://github.com/Blitss/qiwi-sdk-nodejs#readme",
   "dependencies": {
-    "@types/node": "^8.0.24",
     "lodash": "^4.17.4",
+    "moment": "^2.18.1",
     "node-fetch": "^1.7.2",
     "query-string": "^5.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^3.5.0",
+    "@types/node": "^8.0.24",
   }
 }

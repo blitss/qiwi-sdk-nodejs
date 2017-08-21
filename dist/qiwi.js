@@ -8,20 +8,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const moment = require("moment");
 const connector_1 = require("./connector");
 const node_fetch_1 = require("node-fetch");
+exports.QIWI_DATE_FORMAT = 'YYYY-MM-DDThh:mm:ssZ';
+function formatDate(date) {
+    if (typeof date === 'string')
+        return date;
+    return moment(date).format(exports.QIWI_DATE_FORMAT);
+}
+exports.formatDate = formatDate;
 class Qiwi {
     constructor(connector) {
+        if (!connector)
+            throw new Error('You haven\'t specified api_token, go here and get one: https://qiwi.com/api');
         this.connector = typeof connector === 'string' ? new connector_1.default(connector, {}) : connector;
     }
     getProfile(options) {
         return this.connector.query('GET', 'person-profile/v1/profile/current', options);
     }
     getPayments(wallet, options) {
-        return this.connector.query('GET', `payment-history/v1/persons/${wallet}/payments`, options);
+        const defaultOptions = { rows: 25 };
+        return this.connector.query('GET', `payment-history/v1/persons/${wallet}/payments`, Object.assign(defaultOptions, options));
     }
     getPaymentsStats(wallet, options) {
-        return this.connector.query('GET', `payment-history/v1/persons/${wallet}/payments/total`, options);
+        const mergedOptions = Object.assign(options, {
+            startDate: options.startDate ? formatDate(options.startDate) : moment().subtract('7', 'days').format(exports.QIWI_DATE_FORMAT),
+            endDate: options.endDate ? formatDate(options.endDate) : moment().format(exports.QIWI_DATE_FORMAT),
+        });
+        return this.connector.query('GET', `payment-history/v1/persons/${wallet}/payments/total`, mergedOptions);
     }
     getBalance() {
         return this.connector.query('GET', `funding-sources/v1/accounts/current`);
@@ -33,7 +48,7 @@ class Qiwi {
         return this.connector.query('POST', `sinap/providers/${provider}/onlineCommission`, options);
     }
     doPayment(provider, options) {
-        const payment = Object.assign({}, {
+        const payment = Object.assign({
             id: (+new Date()).toString(),
             source: 'account_643',
             paymentMethod: {
@@ -77,6 +92,7 @@ class Qiwi {
     static detectPhone(phone) {
         return __awaiter(this, void 0, void 0, function* () {
             const response = yield node_fetch_1.default('https://qiwi.com/mobile/detect.action', {
+                method: 'POST',
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -84,7 +100,7 @@ class Qiwi {
                 body: `phone=${phone}`
             });
             const json = yield response.json();
-            if (json.code.value === 0)
+            if (json.code.value === "0")
                 return parseInt(json.message);
             else
                 return null;

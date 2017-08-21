@@ -58,7 +58,7 @@ export interface PaymentsResponse {
 }
 
 export interface PaymentsRequest {
-  rows?: number
+  rows: number
   operation?: PaymentInput
   sources?: Sources[]
   startDate?: Date

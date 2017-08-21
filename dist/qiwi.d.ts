@@ -1,5 +1,7 @@
 import QiwiConnector from './connector';
 import { ProfileOptions, ProfileResponse, PaymentsResponse, PaymentsRequest, StatsRequest, StatsResponse, FeeRequest, BalanceResponse, DoPaymentRequest } from './types';
+export declare const QIWI_DATE_FORMAT = "YYYY-MM-DDThh:mm:ssZ";
+export declare function formatDate(date: string | Date): string;
 export default class Qiwi {
     private connector;
     constructor(connector: QiwiConnector | string);
